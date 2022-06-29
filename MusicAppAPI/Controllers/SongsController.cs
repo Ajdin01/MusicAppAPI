@@ -65,7 +65,9 @@ namespace MusicAppAPI.Controllers
             _context.Songs.Add(newSong);
             await _context.SaveChangesAsync();
 
-            return await GetAllUsersSongs(newSong.UserId);
+            //return await GetAllUsersSongs(newSong.UserId);
+
+            return await GetAllUsersSongs();
 
         }
 
