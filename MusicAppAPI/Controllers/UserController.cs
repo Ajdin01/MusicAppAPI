@@ -38,11 +38,11 @@ namespace MusicAppAPI.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register(UserRegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
         {
-            if(_context.Users.Any(u => u.Username == request.Username))
+            if (_context.Users.Any(u => u.Username == request.Username))
             {
-                return BadRequest("User already exists.");
+                return BadRequest();
             }
 
             CreatePasswordHash(request.Password,
@@ -60,15 +60,16 @@ namespace MusicAppAPI.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok("User added!");
+            return Ok();
         }
 
         //maybe input as 2 strings
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserLoginRequest request)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+
             if(user == null) { return BadRequest("User not found!"); }
 
             /*
@@ -82,8 +83,8 @@ namespace MusicAppAPI.Controllers
                 return BadRequest("Password is incorrect!");
             }
 
-            string token = CreateToken(user);
-            return token;
+            AuthenticatedRespones token = CreateToken(user);
+            return Ok(user.Id);
         }
 
         //autogen code
@@ -120,26 +121,28 @@ namespace MusicAppAPI.Controllers
             }
         }
 
-        private string CreateToken(User user)
+        private AuthenticatedRespones CreateToken(User user)
         {
             List<Claim> claims = new()
             {
                 new Claim(JwtRegisteredClaimNames.Name, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, user.Id.ToString())
+                new Claim("UserID", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, "user")
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 claims: claims,
                 expires: DateTime.Now.AddDays(1),
-                signingCredentials: creds);
+                signingCredentials: creds
+                );
 
             string jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return jwt;
+            return new AuthenticatedRespones { Token = jwt};
         }
 
         private string CreateRandomToken()

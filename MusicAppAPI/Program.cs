@@ -38,7 +38,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddCors(setup => setup.AddPolicy(name : "default", 
     options =>
     {
-        options.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:4200");
+        options.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
     }));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -30,22 +30,21 @@ namespace MusicAppAPI.Controllers
         */
 
         //This gets all the songs from the db
-        [HttpGet]
-        public async Task<ActionResult<List<Song>>> GetAllUsersSongs()
+        [HttpGet("{id}")]
+        public async Task<ActionResult<List<Song>>> GetAllUsersSongs(int id)
         {
-
-            var songs = await _context.Songs.ToListAsync();
+            var songs = await _context.Songs.Where(s => s.UserId == id).ToListAsync();
             return Ok(songs);
         }
 
 
-        [HttpPost]
+        [HttpPost("{id}")]
 
-        public async Task<ActionResult<List<Song>>> AddSong(CreateSongDTO request, int userId)
+        public async Task<ActionResult<List<Song>>> AddSong(CreateSongDTO request, int id)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users.FindAsync(id);
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound("") ;
             }
@@ -60,14 +59,14 @@ namespace MusicAppAPI.Controllers
                 SongUrl = request.SongUrl,
             };
 
-            newSong.UserId = userId;
+            newSong.UserId = id;
 
             _context.Songs.Add(newSong);
             await _context.SaveChangesAsync();
 
             //return await GetAllUsersSongs(newSong.UserId);
 
-            return await GetAllUsersSongs();
+            return await GetAllUsersSongs(newSong.UserId);
 
         }
 
@@ -94,11 +93,11 @@ namespace MusicAppAPI.Controllers
 
         public async Task<ActionResult<List<Song>>> DeleteSong(int id)
         {
-            var existingHero = await _context.Songs.FindAsync(id);
-            if (existingHero == null)
+            var existingSong = await _context.Songs.FindAsync(id);
+            if (existingSong == null)
                 return BadRequest("Song doesn't exist.");
 
-            _context.Songs.Remove(existingHero);
+            _context.Songs.Remove(existingSong);
             await _context.SaveChangesAsync();
 
             return Ok(await _context.Songs.ToListAsync());
