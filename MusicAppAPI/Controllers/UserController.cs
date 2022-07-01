@@ -54,7 +54,7 @@ namespace MusicAppAPI.Controllers
                 Username = request.Username,
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
-                VerificationToken = CreateRandomToken()
+                //VerificationToken = CreateRandomToken()
             };
 
             _context.Users.Add(user);
@@ -71,12 +71,6 @@ namespace MusicAppAPI.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
             if(user == null) { return BadRequest("User not found!"); }
-
-            /*
-            if(user.VerifiedAt == null)
-            {
-                return BadRequest("Not verified!");
-            }*/
 
             if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {

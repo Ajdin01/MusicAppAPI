@@ -37,6 +37,14 @@ namespace MusicAppAPI.Controllers
             return Ok(songs);
         }
 
+        [HttpGet("oneSong/{id}")]
+
+        public async Task<ActionResult<Song>> GetOneSong(int id)
+        {
+            var song = await _context.Songs.FindAsync(id);
+            return Ok(song);
+        }
+
 
         [HttpPost("{id}")]
 
@@ -72,7 +80,7 @@ namespace MusicAppAPI.Controllers
 
         [HttpPut]
 
-        public async Task<ActionResult<List<Song>>> UpdateSong(Song song)
+        public async Task<ActionResult<List<Song>>> UpdateSong(EditSongDTO song)
         {
             var existingSong = await _context.Songs.FindAsync(song.Id);
             if (existingSong == null)
@@ -83,7 +91,8 @@ namespace MusicAppAPI.Controllers
             existingSong.SongRating = song.SongRating;
             existingSong.IsFavorite = song.IsFavorite;
             existingSong.SongEdited = DateTime.Now;
-            
+
+
             await _context.SaveChangesAsync();
 
             return Ok(await _context.Songs.ToListAsync());

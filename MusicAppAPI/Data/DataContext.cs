@@ -19,9 +19,9 @@ namespace MusicAppAPI.Data
                 );
 
             modelBuilder.Entity<Song>().HasData(
-                new Song { Id = 1, SongName = "TestSong", ArtistName = "TestArtist", IsFavorite = true, SongRating = 4, SongEntered = DateTime.Now, SongEdited = DateTime.Now, SongUrl = "testURL", UserId = 1 },
-                new Song { Id = 2, SongName = "TestSong2", ArtistName = "TestArtist2", IsFavorite = false, SongRating = 2, SongEntered = DateTime.Now, SongEdited = DateTime.Now, SongUrl = "testURL2", UserId = 1 },
-                new Song { Id = 3, SongName = "TestSong3", ArtistName = "TestArtist3", IsFavorite = true, SongRating = 5, SongEntered = DateTime.Now, SongEdited = DateTime.Now, SongUrl = "testURL3", UserId = 2 }
+                new Song { Id = 1, SongName = "TestSong", ArtistName = "TestArtist", IsFavorite = true, SongRating = 4, SongEntered = DateTime.Now, SongEdited = DateTime.Now, SongUrl = "https://music.youtube.com/watch?v=lYBUbBu4W08&feature=share", UserId = 1 },
+                new Song { Id = 2, SongName = "TestSong2", ArtistName = "TestArtist2", IsFavorite = false, SongRating = 2, SongEntered = DateTime.Now, SongEdited = DateTime.Now, SongUrl = "https://music.youtube.com/watch?v=lYBUbBu4W08&feature=share", UserId = 1 },
+                new Song { Id = 3, SongName = "TestSong3", ArtistName = "TestArtist3", IsFavorite = true, SongRating = 5, SongEntered = DateTime.Now, SongEdited = DateTime.Now, SongUrl = "https://music.youtube.com/watch?v=lYBUbBu4W08&feature=share", UserId = 2 }
 
                 );
         }
