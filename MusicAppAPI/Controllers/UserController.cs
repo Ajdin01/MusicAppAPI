@@ -29,7 +29,8 @@ namespace MusicAppAPI.Controllers
             _configuration = configuration;
             _userService = userService;
         }
-
+        
+        //unused, left over from auth attempts
         [HttpGet("getMe"), Authorize]
         public ActionResult<object> getMe()
         {
@@ -37,6 +38,8 @@ namespace MusicAppAPI.Controllers
             return Ok(userID);
         }
 
+
+        //registers user
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
         {
@@ -63,8 +66,7 @@ namespace MusicAppAPI.Controllers
             return Ok();
         }
 
-        //maybe input as 2 strings
-
+        //logs in use, auth response not used due to lack of jwt knowledge
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
@@ -82,7 +84,7 @@ namespace MusicAppAPI.Controllers
         }
 
         //autogen code
-        // GET: api/Users
+        // gets all users, not used in app just in swagger
         [HttpGet]
         public async Task<ActionResult<List<User>>> GetUsers()
         {
