@@ -15,7 +15,6 @@ namespace MusicAppAPI.Models
         public DateTime? SongEntered { get; set; } = DateTime.Now;
         public DateTime? SongEdited { get; set; } = DateTime.Now;
 
-
         [JsonIgnore]
         public User User { get; set; }
         public int UserId { get; set; }

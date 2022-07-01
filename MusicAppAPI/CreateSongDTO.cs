@@ -3,8 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace MusicAppAPI
 {
-    //data transfer object for creating songs
-
     public class CreateSongDTO
     {
         public string SongName { get; set; } = string.Empty;

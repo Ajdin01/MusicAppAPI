@@ -2,8 +2,6 @@
 {
     public class EditSongDTO
     {
-        //data transfer object for editing songs
-
         public int Id { get; set; }
         public string SongName { get; set; } = string.Empty;
         public string ArtistName { get; set; } = string.Empty;

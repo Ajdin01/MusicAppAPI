@@ -22,17 +22,14 @@ namespace MusicAppAPI.Controllers
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
-        private readonly SecurityHelper _securityHelper;
 
-        public UserController(DataContext context, IConfiguration configuration, IUserService userService, SecurityHelper securityHelper)
+        public UserController(DataContext context, IConfiguration configuration, IUserService userService)
         {
             _context = context;
             _configuration = configuration;
             _userService = userService;
-            _securityHelper = securityHelper; //helper class for auth methods - not actively used
         }
 
-        //remnant of attempted authorization
         [HttpGet("getMe"), Authorize]
         public ActionResult<object> getMe()
         {
@@ -40,8 +37,6 @@ namespace MusicAppAPI.Controllers
             return Ok(userID);
         }
 
-
-        //method to add user to database
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
         {
@@ -50,7 +45,7 @@ namespace MusicAppAPI.Controllers
                 return BadRequest();
             }
 
-            _securityHelper.CreatePasswordHash(request.Password,
+            CreatePasswordHash(request.Password,
                     out byte[] passwordHash,
                     out byte[] passwordSalt);
 
@@ -68,8 +63,8 @@ namespace MusicAppAPI.Controllers
             return Ok();
         }
 
+        //maybe input as 2 strings
 
-        //method for logging in user - token is left over from authorization attempts however i left it to show it was meant to be used
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
@@ -77,18 +72,17 @@ namespace MusicAppAPI.Controllers
 
             if(user == null) { return BadRequest("User not found!"); }
 
-            if (!_securityHelper.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {
                 return BadRequest("Password is incorrect!");
             }
 
-            AuthenticatedRespones token = _securityHelper.CreateToken(user);
+            AuthenticatedRespones token = CreateToken(user);
             return Ok(user.Id);
         }
 
         //autogen code
-
-        // gets all users, not use in web app just in swagger
+        // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<List<User>>> GetUsers()
         {
@@ -99,6 +93,55 @@ namespace MusicAppAPI.Controllers
             return await _context.Users.ToListAsync();
         }
 
-        
+        //--------------------------------------------
+        //below are the mentioned supplemetary methods
+        //--------------------------------------------
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+        }
+
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512(passwordSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+
+                return computedHash.SequenceEqual(passwordHash);
+            }
+        }
+
+        private AuthenticatedRespones CreateToken(User user)
+        {
+            List<Claim> claims = new()
+            {
+                new Claim(JwtRegisteredClaimNames.Name, user.Username),
+                new Claim("UserID", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, "user")
+            };
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+                );
+
+            string jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return new AuthenticatedRespones { Token = jwt};
+        }
+
+        private string CreateRandomToken()
+        {
+            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+        }
     }
 }
