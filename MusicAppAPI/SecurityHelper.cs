@@ -35,7 +35,7 @@ namespace MusicAppAPI
             }
         }
 
-        public string CreateToken(User user)
+        public AuthenticatedRespones CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>
             {

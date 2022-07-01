@@ -4,14 +4,7 @@
     {
         public int Id { get; set; }
 
-        public enum SongCategory
-        {
-            Rock,
-            Pop,
-            HipHop,
-            Indie,
-            Alternative,
-            Jazz
-        }
+        public string CategoryName { get; set; } = string.Empty;
+
     }
 }
